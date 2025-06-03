@@ -1,0 +1,34 @@
+surprisingly, the sqlite3 library is built in to python3
+
+==================================================
+DATATYPES
+==================================================
+
+
+==================================================
+ SYNTAX
+==================================================
+
+CREATE TABLE names (
+	names_id INTEGER PRIMARY KEY AUTOINCREMENT,
+);
+vs
+CREATE TABLE names (
+	names_id INTEGER NOT NULL AUTOINCREMENT,
+	PRIMARY KEY("names_id" AUTOINCREMENT)
+);
+
+
+if only one prinary key use it in line
+but if you have composite keys use another line
+CREATE TABLE example (
+    a INTEGER,
+    b INTEGER,
+    PRIMARY KEY (a, b)
+);
+
+==================================================
+
+ON DELETE CASCADE 
+is a foreign key rule in SQL (including SQLite) that tells the database:
+"If the parent row is deleted, automatically delete the matching child rows too."
