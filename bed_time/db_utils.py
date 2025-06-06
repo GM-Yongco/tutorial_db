@@ -24,7 +24,7 @@ def section(section_name:str = "SECTION") -> None:
 # ========================================================================
 
 DB_FILE:str = "sleep_log.db"
-def execute_SQL(SQL_command:str) -> bool:
+def SQL_execute(SQL_command:str) -> bool:
 	is_executed_just_fine = False
 
 	try:
@@ -38,6 +38,20 @@ def execute_SQL(SQL_command:str) -> bool:
 		print(e)
 
 	return is_executed_just_fine
+
+def SQL_fetch(SQL_command:str) -> bool:
+	ret_val = 0
+
+	try:
+		this_connection:sqlite3.Connection = sqlite3.connect(DB_FILE)
+		this_cursor:sqlite3.Cursor = this_connection.cursor()
+		this_cursor.execute(textwrap.dedent(SQL_command))
+		ret_val:list = this_cursor.fetchall()
+		this_connection.close()
+	except Exception as e:
+		print(e)
+
+	return ret_val
 
 def sql_value(val) -> str:
 	if val == -1 or val == "NULL":
@@ -58,8 +72,9 @@ def init_table_sleep_log()->None:
 		id INTEGER PRIMARY KEY AUTOINCREMENT
 	);
 	"""
+	# 24 hour format btw
 	execution_status = "NOT OK"
-	if execute_SQL(SQL_command=CREATE_table_sleep_log):
+	if SQL_execute(SQL_command=CREATE_table_sleep_log):
 		execution_status = "OK"
 	print(f"{execution_status:8}init_table_sleep_log")
 
@@ -80,23 +95,37 @@ def CREATE_sleep_log(
 		{sql_value(hour_sleep_end)}
 	);
 	"""
-	execute_SQL(INSERT_sleep_log)
+	SQL_execute(INSERT_sleep_log)
 
 # ========================================================================
 
 def READ_sleep_log():
 	SQL_command = "SELECT * FROM sleep_log"
+	rows:list = SQL_fetch(SQL_command)
+	for row in rows:
+		print(row)
 
-	this_connection:sqlite3.Connection = sqlite3.connect(DB_FILE)
-	this_cursor:sqlite3.Cursor = this_connection.cursor()
-	this_cursor.execute(textwrap.dedent(SQL_command))
-	rows:list = this_cursor.fetchall()
+def READ_last_2():
+	SQL_command = """
+	SELECT * FROM sleep_log
+	ORDER BY id DESC
+	LIMIT 2;
+	"""
+	rows:list = SQL_fetch(SQL_command)
 
 	for row in rows:
 		print(row)
 
-	# Clean up
-	this_connection.close()	
+	section()
+	message:str = f"you slept at {rows[0][1]:02} the other day"
+	message += f"\nyou slept at {rows[1][1]:02} yesterday"
+
+	if (rows[0][1] > 0 and rows[0][1] <12) or (rows[1][1] > 0 and rows[1][1] <12) :
+		message += "\nyou didnt sleep early in both days, no sleep late tonight"
+		pass
+	else:
+		message += "\nyou slept early the past 2 days so you get to play league late :DDD"
+	print(message)
 
 # ========================================================================
 # MAIN 
