@@ -6,7 +6,7 @@
 # HEADERS
 # ========================================================================
 
-from db_init import section, init_table_sleep_log, CREATE_sleep_log, READ_sleep_log
+from db_utils import *
 # ========================================================================
 # FUNCTIONS 
 # ========================================================================
@@ -20,7 +20,9 @@ def test():
 
 if __name__ == '__main__':
 	section("START")
-
-	READ_sleep_log()
+	init_table_sleep_log()
+	CREATE_sleep_log(5, 11)
+	# READ_sleep_log()
+	READ_last_2()
 	
 	section("END")
